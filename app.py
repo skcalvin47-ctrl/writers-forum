@@ -10,48 +10,11 @@ import os
 
 from models import (
     db, User, Genre, Book, Chapter, Club,
-    Like, Rating, View, Save, Share, Follow, Report, Comment, ChapterImage
+    Like, Rating, View, Save, Share, Follow, Report
 )
 
 STAR_POINTS = {1: 0.2, 2: 0.5, 3: 2, 4: 2.5, 5: 3}
 GRACE_HOURS = 72  # 2-4 day grace window for new books
-WORDS_PER_PAGE = 100
-MAX_IMAGES_PER_CHAPTER = 4
-IMAGE_MARKER = '[[img]]'
-
-
-def paginate_words(text, words_per_page=WORDS_PER_PAGE):
-    """Split text into chunks of ~words_per_page words. The final leftover
-    chunk keeps its own page even if it has fewer words."""
-    words = text.split()
-    if not words:
-        return ['']
-    return [' '.join(words[i:i + words_per_page]) for i in range(0, len(words), words_per_page)]
-
-
-def get_chapter_pages(chapter, book):
-    """Return a list of {'text': ..., 'image': filename_or_None} dicts representing
-    this chapter's pages. If the book is a picture book, the writer's [[img]] markers
-    in the content are matched in order to the chapter's uploaded images, and each
-    marker forces the image onto the top of the next page."""
-    if book.has_pictures and IMAGE_MARKER in chapter.content:
-        images = ChapterImage.query.filter_by(chapter_id=chapter.id).order_by(ChapterImage.position).all()
-        segments = chapter.content.split(IMAGE_MARKER)
-        pages = []
-        for i, segment in enumerate(segments):
-            segment_pages = paginate_words(segment.strip())
-            image_for_segment = images[i - 1].filename if i > 0 and (i - 1) < len(images) else None
-            for j, page_text in enumerate(segment_pages):
-                pages.append({'text': page_text, 'image': image_for_segment if j == 0 else None})
-        return pages if pages else [{'text': '', 'image': None}]
-    else:
-        pages = paginate_words(chapter.content)
-        result = [{'text': p, 'image': None} for p in pages]
-        if book.has_pictures:
-            images = ChapterImage.query.filter_by(chapter_id=chapter.id).order_by(ChapterImage.position).all()
-            if images and result:
-                result[0]['image'] = images[0].filename
-        return result
 
 
 def recompute_rank(book):
@@ -86,13 +49,13 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///writers_forum.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-    # ---- Mail config: replace with your own Gmail address + App Password ----
+    # ---- Mail config: values loaded from .env, never hardcoded ----
     app.config['MAIL_SERVER'] = 'smtp.gmail.com'
     app.config['MAIL_PORT'] = 587
     app.config['MAIL_USE_TLS'] = True
-    app.config['MAIL_USERNAME'] = 'skcalvin47@gmail.com'
-    app.config['MAIL_PASSWORD'] = 'lhobhanqgsfbjzxx'
-    app.config['MAIL_DEFAULT_SENDER'] = 'skcalvin47@gmail.com'
+    app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
+    app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+    app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_USERNAME')
 
     mail.init_app(app)
     db.init_app(app)
@@ -107,13 +70,12 @@ def create_app():
 
 
 def seed_genres():
-    """Populate default genres, adding any missing ones without duplicating existing rows."""
-    defaults = ['Action', 'Romance', 'Adventure', 'Anime', 'Animated', 'Fantasy', 'Drama', 'Thriller', 'Horror']
-    existing_names = {g.name for g in Genre.query.all()}
-    for name in defaults:
-        if name not in existing_names:
+    """Populate default genres if the table is empty."""
+    if Genre.query.count() == 0:
+        defaults = ['Action', 'Romance', 'Adventure', 'Anime', 'Animated', 'Fantasy', 'Drama']
+        for name in defaults:
             db.session.add(Genre(name=name, slug=name.lower()))
-    db.session.commit()
+        db.session.commit()
 
 
 # ---------- AUTH HELPERS ----------
@@ -287,53 +249,7 @@ def register_routes(app):
     @app.route('/book/<int:book_id>')
     def book_preview(book_id):
         book = Book.query.get_or_404(book_id)
-        comments = Comment.query.filter_by(book_id=book.id).order_by(Comment.created_at.desc()).all()
-        can_manage = current_user() and (current_user().id == book.author_id or current_user().role == 'admin')
-        return render_template('book_preview.html', book=book, comments=comments, can_manage=can_manage)
-
-    @app.route('/book/<int:book_id>/comment', methods=['POST'])
-    @login_required
-    def add_comment(book_id):
-        book = Book.query.get_or_404(book_id)
-        content = request.form.get('content', '').strip()
-        if content:
-            db.session.add(Comment(user_id=current_user().id, book_id=book.id, content=content))
-            db.session.commit()
-            flash('Comment posted.', 'success')
-        return redirect(url_for('book_preview', book_id=book.id))
-
-    @app.route('/write/<int:book_id>/delete', methods=['POST'])
-    @login_required
-    def delete_book(book_id):
-        book = Book.query.get_or_404(book_id)
-        user = current_user()
-
-        if book.author_id != user.id and user.role != 'admin':
-            flash("You don't have permission to delete that.", 'error')
-            return redirect(url_for('home'))
-
-        was_own_book = (book.author_id == user.id)
-        title = book.title
-
-        chapter_ids = [c.id for c in Chapter.query.filter_by(book_id=book.id).all()]
-        if chapter_ids:
-            ChapterImage.query.filter(ChapterImage.chapter_id.in_(chapter_ids)).delete(synchronize_session=False)
-        Chapter.query.filter_by(book_id=book.id).delete(synchronize_session=False)
-        Like.query.filter_by(book_id=book.id).delete(synchronize_session=False)
-        Rating.query.filter_by(book_id=book.id).delete(synchronize_session=False)
-        View.query.filter_by(book_id=book.id).delete(synchronize_session=False)
-        Comment.query.filter_by(book_id=book.id).delete(synchronize_session=False)
-        Save.query.filter_by(book_id=book.id).delete(synchronize_session=False)
-        Share.query.filter_by(book_id=book.id).delete(synchronize_session=False)
-        Report.query.filter_by(book_id=book.id).delete(synchronize_session=False)
-
-        db.session.delete(book)
-        db.session.commit()
-
-        flash(f'"{title}" was deleted.', 'success')
-        if was_own_book:
-            return redirect(url_for('my_books'))
-        return redirect(url_for('admin_queue'))
+        return render_template('book_preview.html', book=book)
 
     @app.route('/book/<int:book_id>/like', methods=['POST'])
     @login_required
@@ -513,24 +429,11 @@ def register_routes(app):
         return redirect(url_for('admin_reports'))
 
     @app.route('/read/<int:book_id>/<int:chapter_number>')
-    def read_chapter_default(book_id, chapter_number):
-        return redirect(url_for('read_chapter', book_id=book_id, chapter_number=chapter_number, page_number=1))
-
-    @app.route('/read/<int:book_id>/<int:chapter_number>/<int:page_number>')
-    def read_chapter(book_id, chapter_number, page_number):
+    def read_chapter(book_id, chapter_number):
         book = Book.query.get_or_404(book_id)
         chapter = Chapter.query.filter_by(book_id=book.id, chapter_number=chapter_number).first_or_404()
         total_chapters = len(book.chapters)
-
-        pages = get_chapter_pages(chapter, book)
-        total_pages = len(pages)
-        if page_number < 1 or page_number > total_pages:
-            page_number = 1
-        current_page = pages[page_number - 1]
-
-        is_last_page_of_chapter = page_number >= total_pages
-        is_last_chapter = chapter_number >= total_chapters
-        is_last = is_last_page_of_chapter and is_last_chapter
+        is_last = chapter_number >= total_chapters
 
         user = current_user()
         db.session.add(View(
@@ -549,9 +452,6 @@ def register_routes(app):
             chapter=chapter,
             chapter_number=chapter_number,
             total_chapters=total_chapters,
-            page=current_page,
-            page_number=page_number,
-            total_pages=total_pages,
             is_last=is_last
         )
 
@@ -643,7 +543,6 @@ def register_routes(app):
             description = request.form['description'].strip()
             genre_id = request.form['genre_id']
             is_ai_assisted = 'is_ai_assisted' in request.form
-            has_pictures = 'has_pictures' in request.form
 
             if not title or not genre_id:
                 flash('Title and genre are required.', 'error')
@@ -655,23 +554,10 @@ def register_routes(app):
                 genre_id=genre_id,
                 author_id=current_user().id,
                 is_ai_assisted=is_ai_assisted,
-                has_pictures=has_pictures,
                 status='pending'
             )
             db.session.add(book)
             db.session.commit()
-
-            cover_file = request.files.get('cover')
-            if cover_file and cover_file.filename:
-                ext = cover_file.filename.rsplit('.', 1)[-1].lower()
-                if ext in ('jpg', 'jpeg', 'png', 'webp'):
-                    filename = f'covers/book_{book.id}.{ext}'
-                    save_path = os.path.join(app.static_folder, filename)
-                    cover_file.save(save_path)
-                    book.cover_image = filename
-                    db.session.commit()
-                else:
-                    flash('Cover must be a JPG, PNG, or WEBP image. Book was created without one.', 'error')
 
             flash('Book created! Now add your first chapter.', 'success')
             return redirect(url_for('add_chapter', book_id=book.id))
@@ -705,44 +591,53 @@ def register_routes(app):
             db.session.add(chapter)
             db.session.commit()
 
-            if book.has_pictures:
-                uploaded = request.files.getlist('images')
-                uploaded = [f for f in uploaded if f and f.filename][:MAX_IMAGES_PER_CHAPTER]
-                for idx, img_file in enumerate(uploaded):
-                    ext = img_file.filename.rsplit('.', 1)[-1].lower()
-                    if ext in ('jpg', 'jpeg', 'png', 'webp'):
-                        filename = f'chapters/book_{book.id}_ch_{chapter.id}_{idx}.{ext}'
-                        save_path = os.path.join(app.static_folder, filename)
-                        img_file.save(save_path)
-                        db.session.add(ChapterImage(chapter_id=chapter.id, filename=filename, position=idx))
-                db.session.commit()
-
             flash(f'Chapter {next_number} added.', 'success')
             return redirect(url_for('add_chapter', book_id=book.id))
 
         return render_template('add_chapter.html', book=book)
 
-    @app.route('/write/<int:book_id>/submit', methods=['POST'])
+    @app.route('/write/new', methods=['GET', 'POST'])
     @role_required('writer', 'admin')
-    def submit_book(book_id):
-        book = Book.query.get_or_404(book_id)
-        if book.author_id != current_user().id and current_user().role != 'admin':
-            flash("You can't do that.", 'error')
-            return redirect(url_for('home'))
+    def new_book():
+        genres = Genre.query.all()
 
-        if len(book.chapters) == 0:
-            flash('Add at least one chapter before submitting for review.', 'error')
+        if request.method == 'POST':
+            title = request.form['title'].strip()
+            description = request.form['description'].strip()
+            genre_id = request.form['genre_id']
+            is_ai_assisted = 'is_ai_assisted' in request.form
+
+            if not title or not genre_id:
+                flash('Title and genre are required.', 'error')
+                return redirect(url_for('new_book'))
+
+            book = Book(
+                title=title,
+                description=description,
+                genre_id=genre_id,
+                author_id=current_user().id,
+                is_ai_assisted=is_ai_assisted,
+                status='pending'
+            )
+            db.session.add(book)
+            db.session.commit()
+
+            cover_file = request.files.get('cover')
+            if cover_file and cover_file.filename:
+                ext = cover_file.filename.rsplit('.', 1)[-1].lower()
+                if ext in ('jpg', 'jpeg', 'png', 'webp'):
+                    filename = f'covers/book_{book.id}.{ext}'
+                    save_path = os.path.join(app.static_folder, filename)
+                    cover_file.save(save_path)
+                    book.cover_image = filename
+                    db.session.commit()
+                else:
+                    flash('Cover must be a JPG, PNG, or WEBP image.', 'error')
+
+            flash('Book created! Now add your first chapter.', 'success')
             return redirect(url_for('add_chapter', book_id=book.id))
 
-        flash('Book submitted for admin review!', 'success')
-        return redirect(url_for('home'))
-
-    @app.route('/my-books')
-    @role_required('writer', 'admin')
-    def my_books():
-        books = Book.query.filter_by(author_id=current_user().id).order_by(Book.created_at.desc()).all()
-        return render_template('my_books.html', books=books)
-
+        return render_template('new_book.html', genres=genres)
     @app.route('/admin/queue')
     @role_required('admin')
     def admin_queue():
@@ -768,6 +663,7 @@ def register_routes(app):
         return redirect(url_for('admin_queue'))
 
 
+app = create_app()
+
 if __name__ == '__main__':
-    app = create_app()
     app.run(debug=True)
