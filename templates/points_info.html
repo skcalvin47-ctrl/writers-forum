@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Forum Points — Writer's Forum{% endblock %}
+
+{% block content %}
+<div class="points-page">
+    <h1>Forum Points</h1>
+    <p class="points-intro">
+        Forum Points are how Writer's Forum rewards real engagement. The more your work is genuinely
+        read, liked, saved, and shared, the more Points you earn — and Points are what power everything
+        from getting discovered to joining a Club.
+    </p>
+
+    <section class="points-section">
+        <h2>How you earn Points</h2>
+        <div class="points-grid">
+            <div class="points-card">
+                <span class="points-value">+2</span>
+                <span class="points-label">per Like</span>
+            </div>
+            <div class="points-card">
+                <span class="points-value">+5</span>
+                <span class="points-label">per Follow</span>
+            </div>
+            <div class="points-card">
+                <span class="points-value">+1</span>
+                <span class="points-label">per completed view</span>
+            </div>
+            <div class="points-card">
+                <span class="points-value">+0.8</span>
+                <span class="points-label">per partial view</span>
+            </div>
+            <div class="points-card">
+                <span class="points-value">+10</span>
+                <span class="points-label">per Save to library</span>
+            </div>
+            <div class="points-card">
+                <span class="points-value">+15</span>
+                <span class="points-label">per Share (by a reader)</span>
+            </div>
+            <div class="points-card">
+                <span class="points-value">+8</span>
+                <span class="points-label">per Share (by you, the writer)</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="points-section">
+        <h2>Ratings also earn Points</h2>
+        <p class="points-note">Every star rating your book receives adds Points — higher ratings add a lot more.</p>
+        <div class="rating-scale">
+            <div class="rating-row"><span>⭐</span><span class="rating-pts">+0.2</span></div>
+            <div class="rating-row"><span>⭐⭐</span><span class="rating-pts">+0.5</span></div>
+            <div class="rating-row"><span>⭐⭐⭐</span><span class="rating-pts">+2</span></div>
+            <div class="rating-row"><span>⭐⭐⭐⭐</span><span class="rating-pts">+2.5</span></div>
+            <div class="rating-row"><span>⭐⭐⭐⭐⭐</span><span class="rating-pts">+3</span></div>
+        </div>
+    </section>
+
+    <section class="points-section">
+        <h2>What about Dislikes?</h2>
+        <p>
+            Dislikes don't cost you Points directly — but they do lower your book's ranking based on your
+            like-to-dislike ratio. A book with an even split of likes and dislikes will rank much lower than
+            one with mostly likes, even with the same total engagement. Keep readers happy, not just active.
+        </p>
+    </section>
+
+    <section class="points-section">
+        <h2>How to spend Points</h2>
+        <div class="spend-list">
+            <div class="spend-item">
+                <h3>🚀 Homepage Preview Boost</h3>
+                <p>Feature your book in the homepage spotlight carousel for 1-2 days.</p>
+            </div>
+            <div class="spend-item">
+                <h3>📈 Genre Top Boost</h3>
+                <p>Push your book to the top of its genre listing for 1-2 days.</p>
+            </div>
+            <div class="spend-item">
+                <h3>🏟️ Club Transfers</h3>
+                <p>Clubs spend Points to buy Writers from other Clubs or sign free agents.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="points-section">
+        <h2>New books get a head start</h2>
+        <p>
+            Every new book gets a temporary visibility boost so it has a fair chance to be discovered before
+            it has any engagement yet. This boost fades gradually over 2-4 days as real likes and ratings
+            start counting instead.
+        </p>
+    </section>
+
+    {% if not current_user %}
+    <div class="points-cta">
+        <p>Ready to start earning?</p>
+        <a href="{{ url_for('register') }}" class="cta-btn">Join as a Writer</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}{{ club.name }} — Writer's Forum{% endblock %}
+
+{% block content %}
+<div class="club-profile-header">
+    <div class="club-crest-large">🏆</div>
+    <div>
+        <h1>{{ club.name }}</h1>
+        <p>{{ club.description }}</p>
+        <p class="club-stat">Total Points: <strong>{{ "%.1f"|format(total_points) }}</strong> · {{ club.members|length }} member(s)</p>
+    </div>
+</div>
+
+{% if current_user %}
+    {% if current_user.club_id == club.id %}
+        <form method="POST" action="{{ url_for('leave_club', club_id=club.id) }}">
+            <button type="submit" class="reject-btn">Leave Club</button>
+        </form>
+    {% elif current_user.role in ['writer', 'admin'] and not current_user.club_id %}
+        <form method="POST" action="{{ url_for('join_club', club_id=club.id) }}">
+            <button type="submit" class="approve-btn">Join This Club</button>
+        </form>
+    {% endif %}
+{% endif %}
+
+<h2 style="margin-top: 2rem;">Roster</h2>
+<div class="roster-list">
+    {% for member in club.members %}
+        <div class="roster-item">
+            <span class="roster-name">
+                {{ member.username }}
+                {% if member.id == club.founder_id %}<span class="ai-badge">Founder</span>{% endif %}
+                {% if member.is_board_member and member.id != club.founder_id %}<span class="ai-badge">Board</span>{% endif %}
+            </span>
+            <span class="roster-points">{{ member.forum_points|int }} pts</span>
+        </div>
+    {% else %}
+        <p>No members yet.</p>
+    {% endfor %}
+</div>
+{% endblock %}

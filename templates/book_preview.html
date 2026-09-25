@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}{{ book.title }} — Writer's Forum{% endblock %}
+
+{% block content %}
+<div class="book-preview">
+    <img src="{{ book.cover_image or url_for('static', filename='images/placeholder-cover.png') }}" alt="{{ book.title }}">
+    <h2>{{ book.title }}
+        {% if book.is_ai_assisted %}<span class="ai-badge">AI-Assisted</span>{% endif %}
+        {% if book.has_pictures %}<span class="ai-badge">Illustrated</span>{% endif %}
+    </h2>
+    <p>by {{ book.author.username }}</p>
+    <p>{{ book.description }}</p>
+    <p>👍 {{ book.like_count }} &nbsp; 👎 {{ book.dislike_count }} &nbsp; ⭐ {{ "%.1f"|format(book.avg_rating) }} &nbsp; 💾 {{ book.save_count }}</p>
+
+    {% if book.chapters|length > 0 %}
+        <a href="{{ url_for('read_chapter', book_id=book.id, chapter_number=1, page_number=1) }}">
+            <button>Open Book</button>
+        </a>
+    {% else %}
+        <button disabled>No chapters yet</button>
+    {% endif %}
+
+    {% if current_user %}
+    <div class="action-row">
+        <form method="POST" action="{{ url_for('like_book', book_id=book.id) }}" style="display:inline;">
+            <button type="submit" class="action-btn">👍 Like</button>
+        </form>
+        <form method="POST" action="{{ url_for('dislike_book', book_id=book.id) }}" style="display:inline;">
+            <button type="submit" class="action-btn">👎 Dislike</button>
+        </form>
+        <form method="POST" action="{{ url_for('save_book', book_id=book.id) }}" style="display:inline;">
+            <button type="submit" class="action-btn">💾 Save</button>
+        </form>
+        <form method="POST" action="{{ url_for('share_book', book_id=book.id) }}" style="display:inline;">
+            <button type="submit" class="action-btn">🔗 Share</button>
+        </form>
+        {% if current_user.id != book.author_id %}
+        <form method="POST" action="{{ url_for('follow_writer', writer_id=book.author_id) }}" style="display:inline;">
+            <input type="hidden" name="book_id" value="{{ book.id }}">
+            <button type="submit" class="action-btn">➕ Follow Writer</button>
+        </form>
+        {% endif %}
+    </div>
+
+    <form method="POST" action="{{ url_for('rate_book', book_id=book.id) }}" class="rate-form">
+        <label>Rate this book:</label>
+        <select name="stars" required>
+            <option value="1">⭐ (1)</option>
+            <option value="2">⭐⭐ (2)</option>
+            <option value="3">⭐⭐⭐ (3)</option>
+            <option value="4">⭐⭐⭐⭐ (4)</option>
+            <option value="5" selected>⭐⭐⭐⭐⭐ (5)</option>
+        </select>
+        <button type="submit" class="action-btn">Submit Rating</button>
+    </form>
+
+    <a href="{{ url_for('report_book', book_id=book.id) }}" class="report-link">🚩 Report this book</a>
+
+    {% if can_manage %}
+    <form method="POST" action="{{ url_for('delete_book', book_id=book.id) }}"
+          onsubmit="return confirm('Delete this book permanently? This cannot be undone.');" style="margin-top: 1rem;">
+        <button type="submit" class="reject-btn">🗑️ Delete this book</button>
+    </form>
+    {% endif %}
+
+    {% else %}
+    <p><a href="{{ url_for('login') }}">Log in</a> to like, save, rate, or follow.</p>
+    {% endif %}
+
+    <section class="comments-section">
+        <h3>Comments</h3>
+        {% if current_user %}
+        <form method="POST" action="{{ url_for('add_comment', book_id=book.id) }}" class="comment-form">
+            <textarea name="content" rows="2" placeholder="Leave a comment..." required></textarea>
+            <button type="submit" class="action-btn">Post</button>
+        </form>
+        {% endif %}
+
+        <div class="comment-list">
+            {% for comment in comments %}
+                <div class="comment-item">
+                    <strong>{{ comment.user.username }}</strong>
+                    <p>{{ comment.content }}</p>
+                </div>
+            {% else %}
+                <p class="muted">No comments yet — be the first.</p>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}

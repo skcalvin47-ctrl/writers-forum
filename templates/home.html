@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Home — Writer's Forum{% endblock %}
+
+{% block content %}
+<section class="featured">
+    <h2>Featured</h2>
+    <div class="book-row">
+        {% for book in featured %}
+            <a href="{{ url_for('book_preview', book_id=book.id) }}" class="book-card">
+                <img src="{{ book.cover_image or url_for('static', filename='images/placeholder-cover.png') }}" alt="{{ book.title }}">
+                <p>{{ book.title }}</p>
+            </a>
+        {% else %}
+            <p>No books yet.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="top-rated">
+    <h2>Top Rated <a href="#" class="more-link">more →</a></h2>
+    <div class="book-row">
+        {% for book in top_rated %}
+            <a href="{{ url_for('book_preview', book_id=book.id) }}" class="book-card">
+                <img src="{{ book.cover_image or url_for('static', filename='images/placeholder-cover.png') }}" alt="{{ book.title }}">
+                <p>{{ book.title }}</p>
+            </a>
+        {% else %}
+            <p>No books yet.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="latest">
+    <h2>Latest <a href="#" class="more-link">more →</a></h2>
+    <div class="book-row">
+        {% for book in latest %}
+            <a href="{{ url_for('book_preview', book_id=book.id) }}" class="book-card">
+                <img src="{{ book.cover_image or url_for('static', filename='images/placeholder-cover.png') }}" alt="{{ book.title }}">
+                <p>{{ book.title }}</p>
+            </a>
+        {% else %}
+            <p>No books yet.</p>
+        {% endfor %}
+    </div>
+</section>
+
+{% for genre in genres %}
+<section class="genre-row">
+    <h2>{{ genre.name }} <a href="{{ url_for('genre_page', slug=genre.slug) }}" class="more-link">more →</a></h2>
+    <div class="book-row">
+        {% for book in genre.books %}
+            {% if book.status == 'approved' %}
+            <a href="{{ url_for('book_preview', book_id=book.id) }}" class="book-card">
+                <img src="{{ book.cover_image or url_for('static', filename='images/placeholder-cover.png') }}" alt="{{ book.title }}">
+                <p>{{ book.title }}</p>
+            </a>
+            {% endif %}
+        {% else %}
+            <p>No books in this genre yet.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endfor %}
+{% endblock %}

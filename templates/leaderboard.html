@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Leaderboard — Writer's Forum{% endblock %}
+
+{% block content %}
+<h2>Club Leaderboard</h2>
+
+<table class="leaderboard-table">
+    <thead>
+        <tr>
+            <th>Pos</th>
+            <th>Club</th>
+            <th>Members</th>
+            <th>Points</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for club, points in ranked_clubs %}
+        <tr>
+            <td class="lb-pos">{{ loop.index }}</td>
+            <td class="lb-club">
+                <a href="{{ url_for('club_profile', club_id=club.id) }}">🏆 {{ club.name }}</a>
+            </td>
+            <td>{{ club.members|length }}</td>
+            <td class="lb-points">{{ "%.1f"|format(points) }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4">No clubs yet.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

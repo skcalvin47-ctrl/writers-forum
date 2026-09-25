@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Add Chapter — {{ book.title }}{% endblock %}
+
+{% block content %}
+<h2>{{ book.title }}</h2>
+<p class="muted">{{ book.chapters|length }} chapter(s) so far</p>
+
+<div class="auth-form" style="max-width: 700px;">
+    <h2>Add Chapter {{ book.chapters|length + 1 }}</h2>
+    <form method="POST" enctype="multipart/form-data">
+        <label>Chapter Title (optional)</label>
+        <input type="text" name="chapter_title">
+
+        <label>Content</label>
+        {% if book.has_pictures %}
+            <p class="muted" style="margin: 0 0 0.5rem;">
+                This is an illustrated book. Type <code>[[img]]</code> anywhere in your text to mark
+                where a picture should appear — your uploaded pictures below will be placed at those
+                markers in order (up to 4 per chapter). If you don't add any markers, your first uploaded
+                picture will simply appear at the top of the chapter.
+            </p>
+        {% endif %}
+        <textarea name="content" rows="14" required></textarea>
+
+        {% if book.has_pictures %}
+        <label>Chapter Pictures (up to 4)</label>
+        <input type="file" name="images" accept=".jpg,.jpeg,.png,.webp" multiple>
+        {% endif %}
+
+        <button type="submit">Save Chapter</button>
+    </form>
+</div>
+
+{% if book.chapters|length > 0 %}
+<form method="POST" action="{{ url_for('submit_book', book_id=book.id) }}">
+    <button type="submit" class="submit-final-btn">Submit Book for Review</button>
+</form>
+{% endif %}
+{% endblock %}

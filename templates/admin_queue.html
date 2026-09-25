@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Review Queue{% endblock %}
+
+{% block content %}
+<h2>Pending Approval</h2>
+{% for book in books %}
+    <div class="queue-item">
+        <img src="{{ book.cover_image or url_for('static', filename='images/placeholder-cover.png') }}" alt="{{ book.title }}">
+        <div class="queue-info">
+            <h3>{{ book.title }}</h3>
+            <p>by {{ book.author.username }} · {{ book.genre.name }}
+                {% if book.is_ai_assisted %}<span class="ai-badge">AI-Assisted</span>{% endif %}
+            </p>
+            <p>{{ book.description }}</p>
+            <p>{{ book.chapters|length }} chapter(s)</p>
+            <form method="POST" action="{{ url_for('approve_book', book_id=book.id) }}" style="display:inline;">
+                <button type="submit" class="approve-btn">Approve</button>
+            </form>
+            <form method="POST" action="{{ url_for('reject_book', book_id=book.id) }}" style="display:inline;">
+                <button type="submit" class="reject-btn">Reject</button>
+            </form>
+        </div>
+    </div>
+{% else %}
+    <p>Nothing waiting for review.</p>
+{% endfor %}
+{% endblock %}

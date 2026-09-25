@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Clubs — Writer's Forum{% endblock %}
+
+{% block content %}
+<div class="clubs-header">
+    <h2>Writer Clubs</h2>
+    {% if current_user and current_user.role in ['writer', 'admin'] and not current_user.club_id %}
+        <a href="{{ url_for('new_club') }}" class="cta-btn-small">+ Create a Club</a>
+    {% endif %}
+</div>
+
+<div class="club-grid">
+    {% for club in clubs %}
+        <a href="{{ url_for('club_profile', club_id=club.id) }}" class="club-card">
+            <div class="club-crest">🏆</div>
+            <h3>{{ club.name }}</h3>
+            <p>{{ club.members|length }} member(s)</p>
+        </a>
+    {% else %}
+        <p>No clubs yet — be the first to start one.</p>
+    {% endfor %}
+</div>
+{% endblock %}

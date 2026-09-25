@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Search — Writer's Forum{% endblock %}
+
+{% block content %}
+<h2>Search</h2>
+
+<form method="GET" action="{{ url_for('search') }}" class="search-form">
+    <input type="text" name="q" placeholder="Search by title, description, or writer..." value="{{ query }}">
+    <button type="submit">Search</button>
+</form>
+
+{% if query %}
+    <p class="search-summary">{{ results|length }} result(s) for "{{ query }}"</p>
+{% endif %}
+
+<div class="book-grid">
+    {% for book in results %}
+        <a href="{{ url_for('book_preview', book_id=book.id) }}" class="book-card">
+            <img src="{{ book.cover_image or url_for('static', filename='images/placeholder-cover.png') }}" alt="{{ book.title }}">
+            <p>{{ book.title }}</p>
+        </a>
+    {% else %}
+        {% if query %}
+            <p>No books found matching "{{ query }}".</p>
+        {% endif %}
+    {% endfor %}
+</div>
+{% endblock %}

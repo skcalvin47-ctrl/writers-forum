@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}New Book — Writer's Forum{% endblock %}
+
+{% block content %}
+<div class="auth-form" style="max-width: 500px;">
+    <h2>Start a new book</h2>
+    <form method="POST" enctype="multipart/form-data">
+        <label>Title</label>
+        <input type="text" name="title" required>
+
+        <label>Genre</label>
+        <select name="genre_id" required>
+            <option value="">Select a genre</option>
+            {% for genre in genres %}
+                <option value="{{ genre.id }}">{{ genre.name }}</option>
+            {% endfor %}
+        </select>
+
+        <label>Description</label>
+        <textarea name="description" rows="4" required></textarea>
+
+        <label>Cover Image (optional)</label>
+        <input type="file" name="cover" accept=".jpg,.jpeg,.png,.webp">
+
+        <label class="role-option" style="margin-top: 1rem;">
+            <input type="checkbox" name="is_ai_assisted" style="width:auto;">
+            <span>This work was created with AI assistance</span>
+        </label>
+
+        <label class="role-option" style="margin-top: 0.5rem;">
+            <input type="checkbox" name="has_pictures" style="width:auto;">
+            <span>This will be an illustrated book (up to 4 pictures per chapter)</span>
+        </label>
+
+        <button type="submit">Create &amp; Add Chapters</button>
+    </form>
+</div>
+{% endblock %}

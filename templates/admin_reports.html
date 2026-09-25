@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Reports — Writer's Forum{% endblock %}
+
+{% block content %}
+<h2>Open Reports</h2>
+
+{% for report in reports %}
+    <div class="queue-item">
+        <img src="{{ report.book.cover_image or url_for('static', filename='images/placeholder-cover.png') }}" alt="{{ report.book.title }}">
+        <div class="queue-info">
+            <h3>{{ report.book.title }}</h3>
+            <p>Reported by {{ report.reporter.username }} · Reason: <strong>{{ report.reason }}</strong></p>
+            {% if report.details %}<p>"{{ report.details }}"</p>{% endif %}
+            <form method="POST" action="{{ url_for('dismiss_report', report_id=report.id) }}" style="display:inline;">
+                <button type="submit" class="approve-btn">Dismiss</button>
+            </form>
+            <form method="POST" action="{{ url_for('resolve_report_remove_book', report_id=report.id) }}" style="display:inline;">
+                <button type="submit" class="reject-btn">Remove Book</button>
+            </form>
+        </div>
+    </div>
+{% else %}
+    <p>No open reports.</p>
+{% endfor %}
+{% endblock %}

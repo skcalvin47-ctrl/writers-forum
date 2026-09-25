@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Create a Club — Writer's Forum{% endblock %}
+
+{% block content %}
+<div class="auth-form" style="max-width: 500px;">
+    <h2>Start a Writer Club</h2>
+    <form method="POST">
+        <label>Club Name</label>
+        <input type="text" name="name" required>
+
+        <label>Description</label>
+        <textarea name="description" rows="4" placeholder="What's your club about?"></textarea>
+
+        <button type="submit">Create Club</button>
+    </form>
+</div>
+{% endblock %}

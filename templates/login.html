@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Login — Writer's Forum{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+<div class="auth-form">
+    <h2>Welcome back</h2>
+    <form method="POST">
+        <label>Email</label>
+        <input type="email" name="email" required>
+
+        <label>Password</label>
+        <input type="password" name="password" required>
+
+        <button type="submit">Log In</button>
+    </form>
+    <p>New here? <a href="{{ url_for('register') }}">Create an account</a></p>
+</div>
+</div>
+{% endblock %}

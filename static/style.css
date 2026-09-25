@@ -1,0 +1,762 @@
+:root {
+    --bg-dark: #0d0d14;
+    --bg-panel: #16161f;
+    --bg-card: #1e1e2a;
+    --accent-red: #e50914;
+    --accent-purple: #6c2bd9;
+    --accent-blue: #1e3a8a;
+    --gradient-main: linear-gradient(135deg, #1e3a8a 0%, #6c2bd9 50%, #e50914 100%);
+    --text-primary: #f5f5f7;
+    --text-secondary: #a0a0b0;
+    --border-color: #2a2a38;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    display: flex;
+    min-height: 100vh;
+}
+
+h1, h2, h3 {
+    font-family: 'Poppins', sans-serif;
+}
+
+/* ---------- SIDEBAR ---------- */
+
+.sidebar {
+    width: 240px;
+    background: var(--bg-panel);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem 1rem;
+    position: fixed;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.logo-box {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+}
+
+.logo-img {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.logo-text {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.side-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1;
+}
+
+.nav-item {
+    color: var(--text-secondary);
+    text-decoration: none;
+    padding: 0.65rem 0.75rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: background 0.15s, color 0.15s;
+}
+
+.nav-item:hover {
+    background: var(--bg-card);
+    color: var(--text-primary);
+}
+
+.sidebar-footer {
+    border-top: 1px solid var(--border-color);
+    padding-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.user-chip {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+}
+
+.points-badge {
+    background: var(--gradient-main);
+    padding: 0.15rem 0.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.75rem;
+}
+
+.signup-btn {
+    background: var(--accent-red);
+    color: white !important;
+    text-align: center;
+    font-weight: 600;
+}
+
+/* ---------- MAIN CONTENT ---------- */
+
+.main-content {
+    margin-left: 240px;
+    flex: 1;
+    padding: 2rem 2.5rem;
+}
+
+section {
+    margin-bottom: 2.5rem;
+}
+
+section h2 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+}
+
+.more-link {
+    color: var(--accent-purple);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+/* ---------- BOOK CARDS ---------- */
+
+.book-row {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+}
+
+.book-card {
+    flex: 0 0 auto;
+    width: 140px;
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: transform 0.2s;
+}
+
+.book-card:hover {
+    transform: translateY(-4px);
+}
+
+.book-card img {
+    width: 140px;
+    height: 190px;
+    object-fit: cover;
+    border-radius: 8px;
+    background: var(--bg-card);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+.book-card p {
+    font-size: 0.85rem;
+    margin: 0.5rem 0 0;
+    font-weight: 500;
+}
+
+.book-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 1.25rem;
+}
+
+/* ---------- AUTH FORMS ---------- */
+
+.auth-page {
+    background: linear-gradient(rgba(5,5,10,0.75), rgba(5,5,10,0.85)),
+                url('images/login-bg.jpg') center/cover no-repeat;
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-page .auth-form {
+    margin: 0;
+}
+
+.auth-form {
+    max-width: 380px;
+    margin: 4rem auto;
+    background: var(--bg-panel);
+    padding: 2.5rem;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border-color);
+}
+
+.auth-form h2 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+}
+
+.auth-form label {
+    display: block;
+    margin-top: 1rem;
+    margin-bottom: 0.35rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.auth-form input {
+    padding: 0.7rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+}
+
+.auth-form select,
+.auth-form textarea {
+    padding: 0.7rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    font-family: 'Inter', sans-serif;
+}
+
+.role-choice {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.role-option {
+    display: flex !important;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--bg-card);
+    padding: 0.6rem 0.75rem;
+    border-radius: 8px;
+    margin-top: 0 !important;
+    font-weight: 400 !important;
+    color: var(--text-primary) !important;
+    cursor: pointer;
+}
+
+.auth-form button {
+    margin-top: 1.5rem;
+    padding: 0.8rem;
+    background: var(--gradient-main);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.auth-form p {
+    text-align: center;
+    margin-top: 1.25rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.auth-form a {
+    color: var(--accent-purple);
+}
+
+/* ---------- FLASH MESSAGES ---------- */
+
+.flash-container {
+    padding: 0 0.5rem;
+}
+
+.flash {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.flash-success { background: rgba(34,197,94,0.15); color: #4ade80; }
+.flash-error { background: rgba(229,9,20,0.15); color: #f87171; }
+
+/* ---------- BOOK PREVIEW ---------- */
+
+.book-preview {
+    max-width: 500px;
+}
+
+.book-preview img {
+    width: 200px;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.book-preview button {
+    background: var(--gradient-main);
+    border: none;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 1rem;
+}
+
+/* ---------- POST-A-BOOK / ADMIN QUEUE ---------- */
+
+.submit-final-btn {
+    background: var(--accent-red);
+    border: none;
+    color: white;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 1.5rem;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-top: 0.3rem;
+}
+.status-pending { background: rgba(234,179,8,0.2); color: #eab308; }
+.status-approved { background: rgba(34,197,94,0.2); color: #4ade80; }
+.status-rejected { background: rgba(229,9,20,0.2); color: #f87171; }
+
+.queue-item {
+    display: flex;
+    gap: 1.5rem;
+    background: var(--bg-panel);
+    padding: 1.25rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+}
+.queue-item img {
+    width: 100px;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+.queue-info { flex: 1; }
+.ai-badge {
+    background: var(--accent-purple);
+    color: white;
+    font-size: 0.7rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 8px;
+    margin-left: 0.5rem;
+}
+.approve-btn, .reject-btn {
+    padding: 0.5rem 1.2rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    margin-right: 0.5rem;
+}
+.approve-btn { background: #22c55e; color: white; }
+.reject-btn { background: var(--accent-red); color: white; }
+
+/* ---------- SEARCH ---------- */
+
+.sidebar-search {
+    margin-bottom: 1rem;
+}
+.sidebar-search input {
+    width: 100%;
+    padding: 0.55rem 0.75rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+}
+
+.search-form {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    max-width: 500px;
+}
+.search-form input {
+    flex: 1;
+    padding: 0.7rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-primary);
+}
+.search-form button {
+    background: var(--gradient-main);
+    border: none;
+    color: white;
+    padding: 0.7rem 1.25rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.search-summary {
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+}
+
+/* ---------- ENGAGEMENT ACTIONS ---------- */
+
+.action-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 1.25rem 0;
+}
+.action-btn {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+.action-btn:hover {
+    background: var(--bg-panel);
+    border-color: var(--accent-purple);
+}
+
+.rate-form {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 1rem 0;
+}
+.rate-form label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+.rate-form select {
+    padding: 0.5rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-primary);
+}
+
+.report-link {
+    display: inline-block;
+    margin-top: 1rem;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    text-decoration: none;
+}
+.report-link:hover {
+    color: var(--accent-red);
+}
+
+/* ---------- READER / PAGE FLIP ---------- */
+
+.reader-wrap {
+    max-width: 700px;
+    margin: 0 auto;
+}
+.reader-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 1rem;
+}
+.reader-progress {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+.book-stage {
+    perspective: 1600px;
+    min-height: 420px;
+    display: flex;
+    align-items: stretch;
+}
+
+.page-flip {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 2rem 2.5rem;
+    width: 100%;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    transform-style: preserve-3d;
+    transition: transform 0.38s ease;
+}
+
+.page-flip.flipping-next {
+    transform: rotateY(-100deg);
+    opacity: 0.4;
+}
+.page-flip.flipping-prev {
+    transform: rotateY(100deg);
+    opacity: 0.4;
+}
+
+.page-text {
+    white-space: pre-wrap;
+    line-height: 1.8;
+    color: var(--text-primary);
+    font-size: 1.02rem;
+}
+
+.reader-nav {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1.5rem;
+}
+.reader-btn {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 0.7rem 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    cursor: pointer;
+}
+.reader-btn-primary {
+    background: var(--gradient-main);
+    border: none;
+    color: white;
+}
+.reader-btn-disabled {
+    opacity: 0.35;
+    pointer-events: none;
+}
+
+/* ---------- CLUBS ---------- */
+
+.clubs-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.cta-btn-small {
+    background: var(--gradient-main);
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.club-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1.25rem;
+}
+
+.club-card {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: transform 0.2s;
+}
+.club-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent-purple);
+}
+
+.club-crest {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.club-profile-header {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+.club-crest-large {
+    font-size: 4rem;
+}
+.club-stat {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.roster-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.roster-item {
+    display: flex;
+    justify-content: space-between;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+}
+.roster-points {
+    font-weight: 700;
+    color: var(--accent-purple);
+}
+
+/* ---------- LEADERBOARD ---------- */
+
+.leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+.leaderboard-table th {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border-color);
+}
+.leaderboard-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+.leaderboard-table a {
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: 600;
+}
+.lb-pos {
+    font-weight: 700;
+    color: var(--text-secondary);
+}
+.lb-points {
+    font-weight: 700;
+    color: var(--accent-purple);
+}
+
+/* ---------- LEGAL / TERMS ---------- */
+
+.legal-page {
+    max-width: 750px;
+}
+.legal-updated {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin-bottom: 2rem;
+}
+.legal-section {
+    margin-bottom: 1.75rem;
+}
+.legal-section h2 {
+    font-size: 1.05rem;
+    margin-bottom: 0.5rem;
+}
+.legal-section p {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    font-size: 0.92rem;
+}
+
+/* ---------- COMMENTS ---------- */
+
+.comments-section {
+    margin-top: 2rem;
+    border-top: 1px solid var(--border-color);
+    padding-top: 1.5rem;
+    max-width: 600px;
+}
+.comment-form {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+}
+.comment-form textarea {
+    flex: 1;
+    padding: 0.6rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    resize: vertical;
+}
+.comment-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+.comment-item {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+}
+.comment-item strong {
+    color: var(--accent-purple);
+    font-size: 0.85rem;
+}
+.comment-item p {
+    margin: 0.25rem 0 0;
+    font-size: 0.9rem;
+}
+.muted {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+/* ---------- DELETE BUTTONS ---------- */
+
+.my-book-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+.delete-mini-btn {
+    background: rgba(229,9,20,0.15);
+    color: #f87171;
+    border: 1px solid rgba(229,9,20,0.3);
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    cursor: pointer;
+}
+
+/* ---------- PAGE IMAGES (illustrated books) ---------- */
+
+.page-image {
+    max-width: 100%;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    display: block;
+}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Report Book — Writer's Forum{% endblock %}
+
+{% block content %}
+<div class="auth-form" style="max-width: 500px;">
+    <h2>Report "{{ book.title }}"</h2>
+    <form method="POST">
+        <label>Reason</label>
+        <select name="reason" required>
+            <option value="plagiarism">Plagiarism / stolen work</option>
+            <option value="explicit">Explicit or sexual content</option>
+            <option value="hate_speech">Hate speech or discrimination</option>
+            <option value="spam">Spam / low quality</option>
+            <option value="other">Other</option>
+        </select>
+
+        <label>Details (optional)</label>
+        <textarea name="details" rows="4" placeholder="Give the moderation team any extra context..."></textarea>
+
+        <button type="submit">Submit Report</button>
+    </form>
+</div>
+{% endblock %}

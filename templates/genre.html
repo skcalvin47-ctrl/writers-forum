@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}{{ genre.name }} — Writer's Forum{% endblock %}
+
+{% block content %}
+<h2>{{ genre.name }}</h2>
+<div class="book-grid">
+    {% for book in books %}
+        <a href="{{ url_for('book_preview', book_id=book.id) }}" class="book-card">
+            <img src="{{ book.cover_image or url_for('static', filename='images/placeholder-cover.png') }}" alt="{{ book.title }}">
+            <p>{{ book.title }}</p>
+        </a>
+    {% else %}
+        <p>No books in this genre yet.</p>
+    {% endfor %}
+</div>
+{% endblock %}

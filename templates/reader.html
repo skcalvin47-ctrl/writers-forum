@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}{{ book.title }} — Chapter {{ chapter_number }}{% endblock %}
+
+{% block content %}
+<div class="reader-wrap">
+    <div class="reader-header">
+        <h2>{{ book.title }}</h2>
+        <span class="reader-progress">Chapter {{ chapter_number }} of {{ total_chapters }} · Page {{ page_number }} of {{ total_pages }}</span>
+    </div>
+
+    <div class="book-stage">
+        <div class="page-flip" id="pageFlip">
+            <div class="page-face page-front">
+                {% if page_number == 1 and chapter.title %}<h3>{{ chapter.title }}</h3>{% endif %}
+                {% if page.image %}
+                    <img src="{{ url_for('static', filename=page.image) }}" class="page-image" alt="Chapter illustration">
+                {% endif %}
+                <div class="page-text">{{ page.text }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="reader-nav">
+        {% if page_number > 1 %}
+            <a href="{{ url_for('read_chapter', book_id=book.id, chapter_number=chapter_number, page_number=page_number - 1) }}"
+               class="reader-btn" onclick="return flipPage(this.href, 'prev')">‹ Previous Page</a>
+        {% elif chapter_number > 1 %}
+            <a href="{{ url_for('read_chapter', book_id=book.id, chapter_number=chapter_number - 1, page_number=1) }}"
+               class="reader-btn" onclick="return flipPage(this.href, 'prev')">‹ Previous Chapter</a>
+        {% else %}
+            <span class="reader-btn reader-btn-disabled">‹ Previous</span>
+        {% endif %}
+
+        {% if not is_last %}
+            {% if page_number < total_pages %}
+                <a href="{{ url_for('read_chapter', book_id=book.id, chapter_number=chapter_number, page_number=page_number + 1) }}"
+                   class="reader-btn reader-btn-primary" onclick="return flipPage(this.href, 'next')">Next Page ›</a>
+            {% else %}
+                <a href="{{ url_for('read_chapter', book_id=book.id, chapter_number=chapter_number + 1, page_number=1) }}"
+                   class="reader-btn reader-btn-primary" onclick="return flipPage(this.href, 'next')">Next Chapter ›</a>
+            {% endif %}
+        {% else %}
+            <a href="{{ url_for('book_preview', book_id=book.id) }}" class="reader-btn reader-btn-primary">Finish Book ✓</a>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function flipPage(url, direction) {
+    const flipEl = document.getElementById('pageFlip');
+    flipEl.style.transformOrigin = direction === 'next' ? 'left center' : 'right center';
+    flipEl.classList.add(direction === 'next' ? 'flipping-next' : 'flipping-prev');
+
+    setTimeout(function () {
+        window.location.href = url;
+    }, 380);
+
+    return false;
+}
+</script>
+{% endblock %}

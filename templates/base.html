@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Writer's Forum{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="logo-box">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Writer's Forum" class="logo-img">
+            <span class="logo-text">Writer's Forum</span>
+        </div>
+
+        <form action="{{ url_for('search') }}" method="GET" class="sidebar-search">
+            <input type="text" name="q" placeholder="Search books...">
+        </form>
+
+        <nav class="side-nav">
+            <a href="{{ url_for('home') }}" class="nav-item">🏠 Home</a>
+            <a href="{{ url_for('points_info') }}" class="nav-item">💎 Forum Points</a>
+            <a href="{{ url_for('clubs_list') }}" class="nav-item">🏆 Clubs</a>
+            <a href="{{ url_for('leaderboard') }}" class="nav-item">📊 Leaderboard</a>
+            <a href="{{ url_for('terms') }}" class="nav-item">📜 Terms</a>
+
+            {% if current_user and current_user.role in ['writer', 'admin'] %}
+                <a href="{{ url_for('new_book') }}" class="nav-item">✍️ Write a Book</a>
+                <a href="{{ url_for('my_books') }}" class="nav-item">📖 My Books</a>
+            {% endif %}
+            {% if current_user and current_user.role == 'admin' %}
+                <a href="{{ url_for('admin_queue') }}" class="nav-item">🛡️ Review Queue</a>
+                <a href="{{ url_for('admin_reports') }}" class="nav-item">🚩 Reports</a>
+            {% endif %}
+        </nav>
+
+        <div class="sidebar-footer">
+            {% if current_user %}
+                <div class="user-chip">
+                    <span>{{ current_user.username }}</span>
+                    <span class="points-badge">{{ current_user.forum_points|int }} pts</span>
+                </div>
+                <a href="{{ url_for('logout') }}" class="nav-item logout">Logout</a>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="nav-item">Login</a>
+                <a href="{{ url_for('register') }}" class="nav-item signup-btn">Sign Up</a>
+            {% endif %}
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <div class="flash-container">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
+        <main>
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+</body>
+</html>

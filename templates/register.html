@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Sign Up — Writer's Forum{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+<div class="auth-form">
+    <h2>Create your account</h2>
+    <form method="POST">
+        <label>Username</label>
+        <input type="text" name="username" required>
+
+        <label>Email</label>
+        <input type="email" name="email" required>
+
+        <label>Password</label>
+        <input type="password" name="password" required minlength="6">
+
+        <label>I want to join as</label>
+        <div class="role-choice">
+            <label class="role-option">
+                <input type="radio" name="role" value="reader" checked>
+                <span>📖 Reader — just here to read</span>
+            </label>
+            <label class="role-option">
+                <input type="radio" name="role" value="writer">
+                <span>✍️ Writer — I want to post books</span>
+            </label>
+        </div>
+
+        <button type="submit">Sign Up</button>
+    </form>
+    <p>Already have an account? <a href="{{ url_for('login') }}">Log in</a></p>
+</div>
+</div>
+{% endblock %}

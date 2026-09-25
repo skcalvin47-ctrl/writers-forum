@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}My Books{% endblock %}
+
+{% block content %}
+<h2>My Books</h2>
+<div class="book-grid">
+    {% for book in books %}
+        <div class="book-card my-book-card">
+            <a href="{{ url_for('book_preview', book_id=book.id) }}">
+                <img src="{{ book.cover_image or url_for('static', filename='images/placeholder-cover.png') }}" alt="{{ book.title }}">
+                <p>{{ book.title }}</p>
+            </a>
+            <span class="status-badge status-{{ book.status }}">{{ book.status }}</span>
+            <form method="POST" action="{{ url_for('delete_book', book_id=book.id) }}"
+                  onsubmit="return confirm('Delete this book permanently?');">
+                <button type="submit" class="delete-mini-btn">Delete</button>
+            </form>
+        </div>
+    {% else %}
+        <p>You haven't written anything yet. <a href="{{ url_for('new_book') }}">Start now</a>.</p>
+    {% endfor %}
+</div>
+{% endblock %}
