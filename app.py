@@ -8,6 +8,9 @@ from datetime import datetime
 from sqlalchemy import or_
 from dotenv import load_dotenv
 import os
+import json
+import urllib.request
+import urllib.error
 
 load_dotenv()
 
@@ -55,6 +58,62 @@ def get_chapter_pages(chapter, book):
             if images and result:
                 result[0]['image'] = images[0].filename
         return result
+
+
+def send_email(app, to_email, subject, text_body):
+    """Send an email. Uses Brevo's HTTPS API when BREVO_API_KEY is set (works on hosts
+    that block SMTP ports, like Render's free tier); otherwise falls back to Flask-Mail
+    SMTP for local development. Never raises: returns True on success, False on failure."""
+    api_key = os.environ.get('BREVO_API_KEY')
+    sender = os.environ.get('MAIL_SENDER') or os.environ.get('MAIL_USERNAME')
+    try:
+        if api_key:
+            payload = json.dumps({
+                'sender': {'name': "Writer's Forum", 'email': sender},
+                'to': [{'email': to_email}],
+                'subject': subject,
+                'textContent': text_body,
+            }).encode('utf-8')
+            req = urllib.request.Request(
+                'https://api.brevo.com/v3/smtp/email',
+                data=payload,
+                headers={
+                    'api-key': api_key,
+                    'content-type': 'application/json',
+                    'accept': 'application/json',
+                },
+                method='POST',
+            )
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                return 200 <= resp.status < 300
+        msg = Message(subject, recipients=[to_email])
+        msg.body = text_body
+        mail.send(msg)
+        return True
+    except urllib.error.HTTPError as e:
+        app.logger.error('Brevo rejected the email to %s: %s %s', to_email, e.code, e.read().decode('utf-8', 'ignore'))
+        return False
+    except Exception:
+        app.logger.exception('Failed to send email to %s', to_email)
+        return False
+
+
+def send_confirmation(app, email):
+    token = app.serializer.dumps(email, salt='email-confirm')
+    confirm_url = url_for('confirm_email', token=token, _external=True)
+    return send_email(
+        app, email, "Confirm your Writer's Forum account",
+        f"Welcome to Writer's Forum! Click to confirm your account: {confirm_url}"
+    )
+
+
+def apply_admin_email(user):
+    """If a confirmed user's email matches the ADMIN_EMAIL environment variable,
+    make them an admin. Confirmation proves they own that inbox."""
+    admin_email = (os.environ.get('ADMIN_EMAIL') or '').strip().lower()
+    if admin_email and user.confirmed and user.email.lower() == admin_email and user.role != 'admin':
+        user.role = 'admin'
+        db.session.commit()
 
 
 def recompute_rank(book):
@@ -177,7 +236,13 @@ def register_routes(app):
             email = request.form['email'].strip().lower()
             password = request.form['password']
 
-            if User.query.filter((User.username == username) | (User.email == email)).first():
+            existing = User.query.filter_by(email=email).first()
+            if existing and not existing.confirmed:
+                send_confirmation(app, existing.email)
+                flash('That email is registered but not confirmed yet. We sent a new confirmation link.', 'success')
+                return redirect(url_for('login'))
+
+            if existing or User.query.filter_by(username=username).first():
                 flash('Username or email already taken.', 'error')
                 return redirect(url_for('register'))
 
@@ -195,14 +260,11 @@ def register_routes(app):
             db.session.add(user)
             db.session.commit()
 
-            token = app.serializer.dumps(email, salt='email-confirm')
-            confirm_url = url_for('confirm_email', token=token, _external=True)
-
-            msg = Message('Confirm your Writer\'s Forum account', recipients=[email])
-            msg.body = f'Welcome to Writer\'s Forum! Click to confirm your account: {confirm_url}'
-            mail.send(msg)
-
-            flash('Account created! Check your email to confirm before logging in.', 'success')
+            if send_confirmation(app, email):
+                flash('Account created! Check your email to confirm before logging in.', 'success')
+            else:
+                flash("Account created, but we couldn't send the confirmation email right now. "
+                      "Register again with the same email to get a new link.", 'error')
             return redirect(url_for('login'))
 
         return render_template('register.html')
@@ -223,6 +285,7 @@ def register_routes(app):
         else:
             user.confirmed = True
             db.session.commit()
+            apply_admin_email(user)
             flash('Account confirmed! You can now log in.', 'success')
 
         return redirect(url_for('login'))
@@ -238,6 +301,7 @@ def register_routes(app):
                 if not user.confirmed:
                     flash('Please confirm your email before logging in.', 'error')
                     return redirect(url_for('login'))
+                apply_admin_email(user)
                 session['user_id'] = user.id
                 flash(f'Welcome back, {user.username}!', 'success')
                 return redirect(url_for('home'))
