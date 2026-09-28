@@ -11,6 +11,8 @@ import os
 import json
 import urllib.request
 import urllib.error
+import smtplib
+from email.message import EmailMessage
 
 load_dotenv()
 
@@ -86,9 +88,17 @@ def send_email(app, to_email, subject, text_body):
             )
             with urllib.request.urlopen(req, timeout=10) as resp:
                 return 200 <= resp.status < 300
-        msg = Message(subject, recipients=[to_email])
-        msg.body = text_body
-        mail.send(msg)
+        # Local-development fallback: plain SMTP with a short timeout so a blocked
+        # port fails fast instead of hanging the worker.
+        smtp_msg = EmailMessage()
+        smtp_msg['Subject'] = subject
+        smtp_msg['From'] = sender
+        smtp_msg['To'] = to_email
+        smtp_msg.set_content(text_body)
+        with smtplib.SMTP(app.config['MAIL_SERVER'], app.config['MAIL_PORT'], timeout=8) as server:
+            server.starttls()
+            server.login(app.config['MAIL_USERNAME'], app.config['MAIL_PASSWORD'])
+            server.send_message(smtp_msg)
         return True
     except urllib.error.HTTPError as e:
         app.logger.error('Brevo rejected the email to %s: %s %s', to_email, e.code, e.read().decode('utf-8', 'ignore'))
